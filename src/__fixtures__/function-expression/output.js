@@ -1,0 +1,1 @@
+const oof = rab => rab;

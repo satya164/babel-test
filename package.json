@@ -1,0 +1,49 @@
+{
+  "name": "babel-tester",
+  "version": "0.0.1",
+  "description": "An opinionated library to make testing Babel plugins easier with Jest",
+  "keywords": [
+    "web worker",
+    "proxy"
+  ],
+  "main": "lib/index.js",
+  "files": [
+    "lib/"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/satya164/babel-tester.git"
+  },
+  "author": "Satyajit Sahoo <satyajit.happy@gmail.com> (https://github.com/satya164/)",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "jest",
+    "precommit": "yarn lint && yarn test"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "codecov": "^3.0.4",
+    "eslint": "^4.19.1",
+    "eslint-config-satya164": "^1.0.2",
+    "husky": "^0.14.3",
+    "jest": "^23.5.0",
+    "jest-file-snapshot": "^0.0.2",
+    "prettier": "^1.13.5"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "watchPathIgnorePatterns": [
+      "__fixtures__\\/[^/]+\\/(output|error)\\.js"
+    ]
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "error-stack-parser": "^2.0.2",
+    "escape-string-regexp": "^1.0.5",
+    "strip-ansi": "^5.0.0"
+  }
+}

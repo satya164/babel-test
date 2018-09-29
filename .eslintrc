@@ -1,0 +1,10 @@
+{
+  extends: "satya164",
+  env: {
+    node: true,
+    jest: true,
+  },
+  rules: {
+    'import/no-commonjs': false,
+  }
+}
