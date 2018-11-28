@@ -8,28 +8,20 @@ const stripAnsi = require('strip-ansi');
 const escapeRegexp = require('escape-string-regexp');
 const ErrorStackParser = require('error-stack-parser');
 
-exports.create = function create(config) {
-  // User can pass an array of objects with transform methods or a babel config
-  const transformers = Array.isArray(config)
-    ? config
-    : // If we have a babel config, create a transform method for use
-      [
-        {
-          transform: code =>
-            // Lazily require babel so we don't throw for users who don't need it
-            require('@babel/core').transformAsync(
-              code,
-              // By default, disable reading babel config
-              // This makes sure that the tests are self contained
-              Object.assign({ babelrc: false }, config)
-            ),
-        },
-      ];
-
-  const prefix = (t, title) => (t.title ? `${t.title} › ${title}` : title);
-
-  const tester = (callback, transform) => () => callback({ transform });
-  const runner = (directory, callback, transform) => () => {
+exports.create = function create(
+  config,
+  {
+    transform = code =>
+      // Lazily require babel so we don't throw for users who don't need it
+      require('@babel/core').transformAsync(
+        code,
+        // By default, disable reading babel config
+        // This makes sure that the tests are self contained
+        Object.assign({ babelrc: false, configFile: false }, config)
+      ),
+  } = {}
+) {
+  const runner = (directory, callback) => () => {
     fs.readdirSync(directory)
       .filter(f => fs.lstatSync(path.join(directory, f)).isDirectory())
       .forEach(f => {
@@ -61,7 +53,7 @@ exports.create = function create(config) {
       });
   };
 
-  const helper = e => ({ input, transform }) => {
+  const helper = e => ({ input }) => {
     const stack = ErrorStackParser.parse(e);
 
     const output = path.join(path.dirname(input.filename), 'output.js');
@@ -114,38 +106,26 @@ exports.create = function create(config) {
   };
 
   function test(title, callback) {
-    transformers.forEach(t =>
-      it(prefix(t, title), () => callback({ transform: t.transform }))
-    );
+    it(title, () => callback({ transform }));
   }
 
   test.skip = (title, callback) =>
-    transformers.forEach(t =>
-      it.skip(prefix(t, title), tester(callback, t.transform))
-    );
+    it.skip(title, () => callback({ transform }));
 
   test.only = (title, callback) =>
-    transformers.forEach(t =>
-      it.only(prefix(t, title), tester(callback, t.transform))
-    );
+    it.only(title, () => callback({ transform }));
 
   // We create a new error here so we can point to user's file in stack trace
   // Otherwise stack traces will point to the library code
   function fixtures(title, directory, callback = helper(new Error())) {
-    transformers.forEach(t =>
-      describe(prefix(t, title), runner(directory, callback, t.transform))
-    );
+    describe(title, runner(directory, callback));
   }
 
   fixtures.skip = (title, directory, callback = helper(new Error())) =>
-    transformers.forEach(t =>
-      describe.skip(prefix(t, title), runner(directory, callback, t.transform))
-    );
+    describe.skip(title, runner(directory, callback));
 
   fixtures.only = (title, directory, callback = helper(new Error())) =>
-    transformers.forEach(t =>
-      describe.only(prefix(t, title), runner(directory, callback, t.transform))
-    );
+    describe.only(title, runner(directory, callback));
 
   return { test, fixtures };
 };
