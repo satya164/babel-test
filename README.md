@@ -28,7 +28,7 @@ The library exports a `create` function, which you can use to create helpers for
 import { create } from 'babel-tester';
 
 const { fixtures } = create({
-  plugins: [require.resolve('./my-plugin')]
+  plugins: [require.resolve('./my-plugin')],
 });
 
 fixtures('my plugin', path.join(__dirname, '__fixtures__'));
@@ -42,30 +42,19 @@ Calling the `create` function with a babel config returns an object with `test` 
 import { create } from 'babel-tester';
 
 const { test, fixtures } = create({
-  plugins: [require.resolve('./my-plugin')]
+  plugins: [require.resolve('./my-plugin')],
 });
 ```
 
-You can pass anything that babel supports to the `create` function. It'll additionally set `babelrc` option to `false` by default if you haven't explictely passed it. This avoids your tests being affected by external babel configuration.
+You can pass anything that babel supports to the `create` function. It'll additionally set `babelrc` and `configFile` options to `false` by default if you haven't explicitly passed it. This avoids your tests being affected by external babel configuration.
 
-Sometimes it's useful to test a plugin against multiple babel versions. You can pass an array like so, and the tests will be run against each of the transforms:
+Sometimes it's useful to test a plugin against a different babel instance. The `create` function accepts a `transform` option which you can use to test against a custom babel instance:
 
 ```js
-const config = {
-  plugins: [require.resolve('./my-plugin')],
-  babelrc: false,
-};
-
-const { test, fixtures } = create([
-  {
-    title: 'babel 6',
-    transform: code => require('babel-core').transform(code, config),
-  },
-  {
-    title: 'babel 7',
-    transform: code => require('@babel/core').transformAsync(code, config),
-  },
-]);
+const { test, fixtures } = create(config, {
+  // transform function for babel 6
+  transform: code => require('babel-core').transform(code, config),
+});
 ```
 
 To run the tests against a directory with fixtures, you can use the `fixtures` function returned from `create`:
@@ -94,7 +83,7 @@ async ({ input, transform }) => {
 })
 ```
 
-The fixtures directory should contain subdirectories with test files. Every test should contain a `code.js` file, which will be used as the input. If the transfrom should throw, it should have an `error.js` file. If the transform should pass, it should have an `output.js` file with the transformed code. The title for each test will be  based the name of the directory. The first argument is used as the title for the describe block.
+The fixtures directory should contain subdirectories with test files. Every test should contain a `code.js` file, which will be used as the input. If the transform should throw, it should have an `error.js` file. If the transform should pass, it should have an `output.js` file with the transformed code. The title for each test will be based the name of the directory. The first argument is used as the title for the describe block.
 
 You can use `fixtures.skip` and `fixtures.only`, similar to Jest's `describe.skip` and `describe.only`. To skip an individual fixture, you can rename the fixture's directory to `skip.name-of-the-fixture`, and to run a specific fixture, you can rename the fixture's directory to `only.name-of-the-fixture`.
 

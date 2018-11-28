@@ -6,28 +6,39 @@ expect.extend({ toMatchFile });
 
 const config = {
   plugins: [require.resolve('../__fixtures__/plugin')],
-  babelrc: false,
 };
 
-const { test, fixtures } = create([
-  {
-    title: 'babel 6',
-    transform: code => require('babel-core').transform(code, config),
-  },
-  {
-    title: 'babel 7',
-    transform: code => require('@babel/core').transformAsync(code, config),
-  },
-]);
+describe('basic usage', () => {
+  const { test, fixtures } = create(config);
 
-fixtures('reverses identifiers', path.join(__dirname, '..', '__fixtures__'));
+  fixtures('reverses identifiers', path.join(__dirname, '..', '__fixtures__'));
 
-test('throws error', async ({ transform }) => {
-  expect.assertions(1);
+  test('throws error', async ({ transform }) => {
+    expect.assertions(1);
 
-  try {
-    await transform('const error = 42');
-  } catch (e) {
-    expect(e.message).toMatch('The identifier "error" is not supported');
-  }
+    try {
+      await transform('const error = 42');
+    } catch (e) {
+      expect(e.message).toMatch('The identifier "error" is not supported');
+    }
+  });
+});
+
+describe('custom transform', () => {
+  const { test, fixtures } = create(config, {
+    transform: code =>
+      require('babel-core').transform(code, { babelrc: false, ...config }),
+  });
+
+  fixtures('reverses identifiers', path.join(__dirname, '..', '__fixtures__'));
+
+  test('throws error', async ({ transform }) => {
+    expect.assertions(1);
+
+    try {
+      await transform('const error = 42');
+    } catch (e) {
+      expect(e.message).toMatch('The identifier "error" is not supported');
+    }
+  });
 });

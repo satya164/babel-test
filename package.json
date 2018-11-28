@@ -3,12 +3,13 @@
   "version": "0.0.1",
   "description": "An opinionated library to make testing Babel plugins easier with Jest",
   "keywords": [
-    "web worker",
-    "proxy"
+    "babel",
+    "jest",
+    "test"
   ],
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "files": [
-    "lib/"
+    "src/"
   ],
   "license": "MIT",
   "repository": {
