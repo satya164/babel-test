@@ -58,7 +58,7 @@ exports.create = function create(
                 expected.toBe(fs.readFileSync(output.filename, 'utf8'));
               }
             } catch (e) {
-              e.stack = `${e.message}\n${output.stack[0].source}`;
+              e.stack = `${e.message}\n${output.stack}`;
 
               throw e;
             }
@@ -68,10 +68,11 @@ exports.create = function create(
   };
 
   const helper = e => ({ input }) => {
-    const stack = ErrorStackParser.parse(e);
-
-    // We should point to the user's file which started the test
-    stack.shift();
+    // We should filter out stack traces from the library
+    const stack = ErrorStackParser.parse(e)
+      .filter(s => s.fileName !== __filename)
+      .map(s => s.source)
+      .join('\n');
 
     const output = path.join(path.dirname(input.filename), 'output.js');
     const error = path.join(path.dirname(input.filename), 'error.js');
@@ -91,7 +92,7 @@ exports.create = function create(
         )
       );
 
-      e.stack = `${e.message}\n${stack[0].source}`;
+      e.stack = `${e.message}\n${stack}`;
 
       throw e;
     }
