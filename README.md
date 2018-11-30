@@ -97,17 +97,16 @@ You can use `test.skip` and `test.only`, similar to Jest's `it.skip` and `it.onl
 
 ### Custom transform
 
-Sometimes it's useful to test a plugin against a different babel instance. The `create` function accepts a `transform` option which you can use to test against a custom babel instance:
+Sometimes it's useful to test a plugin against a different babel instance. You can pass a `transform` function to `create` instead of a `config` object to test against a custom babel instance:
 
 ```js
-const { test, fixtures } = create(null, {
+const { test, fixtures } = create((code, options) =>
   // transform function for babel 6
-  transform: (code, options) =>
-    require('babel-core').transform(code, { ...config, ...options }),
-});
+  require('babel-core').transform(code, Object.assign({}, config, options))
+);
 ```
 
-The custom `transform` function will receive the `code` and additional `options` for babel (such as `filename`).
+The custom `transform` function will receive the `code` and additional `options` for babel (such as `filename`) and should return an object with `code` property containing the transformed code.
 
 ## Integration with Jest snapshot
 

@@ -8,27 +8,27 @@ const stripAnsi = require('strip-ansi');
 const escapeRegexp = require('escape-string-regexp');
 const ErrorStackParser = require('error-stack-parser');
 
-exports.create = function create(
-  config,
-  {
-    transform = (code, options) =>
-      // Lazily require babel so we don't throw for users who don't need it
-      require('@babel/core').transformAsync(
-        code,
-        // By default, disable reading babel config
-        // This makes sure that the tests are self contained
-        Object.assign(
-          {
-            caller: { name: 'babel-tester' },
-            babelrc: false,
-            configFile: false,
-          },
-          config,
-          options
-        )
-      ),
-  } = {}
-) {
+exports.create = function create(config) {
+  const transform =
+    typeof config === 'function'
+      ? config
+      : (code, options) =>
+          // Lazily require babel so we don't throw for users who don't need it
+          require('@babel/core').transformAsync(
+            code,
+            // By default, disable reading babel config
+            // This makes sure that the tests are self contained
+            Object.assign(
+              {
+                caller: { name: 'babel-tester' },
+                babelrc: false,
+                configFile: false,
+              },
+              config,
+              options
+            )
+          );
+
   const runner = (directory, callback) => () => {
     fs.readdirSync(directory)
       .filter(f => fs.lstatSync(path.join(directory, f)).isDirectory())
