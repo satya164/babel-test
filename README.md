@@ -58,27 +58,7 @@ To run the tests against a directory with fixtures, you can use the `fixtures` f
 fixtures('my plugin', path.join(__dirname, '__fixtures__'));
 ```
 
-It accepts a title for the `describe` block and the path to the directory containing the fixtures, and optionally a custom callback to configure the output file. The default callback looks like this:
-
-```js
-async ({ input, transform }) => {
-  try {
-    const { code } = await transform(input.content, {
-      filename: input.filename
-    });
-
-    return {
-      filename: path.dirname(input.filename, 'output.js'),
-      content: code,
-    };
-  } catch (e) {
-    return {
-      filename: path.dirname(input.filename, 'error.txt'),
-      content: e.stack,
-    };
-  }
-});
-```
+It accepts a title for the `describe` block and the path to the directory containing the fixtures, and optionally a custom callback to configure the output file.
 
 The fixtures directory should contain subdirectories with test files. Every test should contain a `code.js` file, which will be used as the input. If the transform should throw, it should have an `error.js` file. If the transform should pass, it should have an `output.js` file with the transformed code. The title for each test will be based the name of the directory. The first argument is used as the title for the describe block.
 
