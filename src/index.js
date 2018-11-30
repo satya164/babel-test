@@ -49,13 +49,28 @@ exports.create = function create(config) {
               transform,
             })
           ).then(output => {
-            const expected = expect(output.content);
-
             try {
-              if (typeof expected.toMatchFile === 'function') {
-                expected.toMatchFile(output.filename);
+              if ('expect' in global) {
+                // Use `expect` for assertions if available, for example when using Jest
+                const expected = expect(output.content);
+
+                if (typeof expected.toMatchFile === 'function') {
+                  expected.toMatchFile(output.filename);
+                } else {
+                  expected.toBe(fs.readFileSync(output.filename, 'utf8'));
+                }
               } else {
-                expected.toBe(fs.readFileSync(output.filename, 'utf8'));
+                // If `expect` is not available, use `assert`, for example when using Mocha
+                const assert = require('assert');
+                const actual = fs.readFileSync(output.filename, 'utf8');
+
+                assert.strictEqual(
+                  actual,
+                  output.content,
+                  `Expected output doesn't match ${path.basename(
+                    output.filename
+                  )}`
+                );
               }
             } catch (e) {
               e.stack = `${e.message}\n${output.stack}`;

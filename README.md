@@ -1,6 +1,6 @@
 # babel-tester
 
-An opinionated library to make testing babel plugins easier with Jest.
+An opinionated library to make testing babel plugins easier.
 
 <img alt="Demo" src="demo/demo.gif" width="626">
 
@@ -8,7 +8,7 @@ An opinionated library to make testing babel plugins easier with Jest.
 
 I like to use fixture files instead of snapshots for testing my babel plugins because it's easier to read with proper syntax highlighting. But I missed the features of snapshots, i.e. creating and updating snapshots with press of a key. It was too annoying to copy paste transformed code from the terminal every time. So I wanted to make something which integrates with Jest's snapshot feature.
 
-I also felt that the current solutions add too much abstraction and I wanted to make something simpler.
+I also felt that the current solutions add too much abstraction and I wanted to make something simpler. The tool is fairly simple and works with [Jest](https://jestjs.io/) (recommended) or any testing framework which provides the `describe` and `it` global functions, such as [Mocha](https://mochajs.org/).
 
 ## Installation
 
@@ -77,7 +77,7 @@ The fixtures directory should contain subdirectories with test files. Every test
 
 You can use `fixtures.skip` and `fixtures.only`, similar to Jest's `describe.skip` and `describe.only`. To skip an individual fixture, you can rename the fixture's directory to `skip.name-of-the-fixture`, and to run a specific fixture, you can rename the fixture's directory to `only.name-of-the-fixture`.
 
-By default, it will only compare the files on the filesystem and you have to manually update the files in case of a mismatch. To automatically update the files using Jest's snapshot feature, you can use `jest-file-snapshot` ([see below](#integration-with-jest-snapshot)).
+By default, it will compare the outputs with the files on the filesystem and you have to manually update the files in case of a mismatch. If you're using Jest, you can use the snapshot feature to automatically update the files with a keypress. ([See below](#integration-with-jest-snapshot)) on how to set it up.
 
 ### Standalone test
 
