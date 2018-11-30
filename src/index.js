@@ -28,8 +28,8 @@ exports.create = function create(
         const t = f.startsWith('skip.')
           ? it.skip
           : f.startsWith('only.')
-            ? it.only
-            : it;
+          ? it.only
+          : it;
 
         t(f.replace(/^(skip|only)\./, '').replace(/(-|_)/g, ' '), () => {
           const filename = path.join(path.join(directory, f), 'code.js');
