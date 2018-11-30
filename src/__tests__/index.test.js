@@ -25,9 +25,13 @@ describe('basic usage', () => {
 });
 
 describe('custom transform', () => {
-  const { test, fixtures } = create(config, {
-    transform: code =>
-      require('babel-core').transform(code, { babelrc: false, ...config }),
+  const { test, fixtures } = create(null, {
+    transform: (code, options) =>
+      require('babel-core').transform(code, {
+        babelrc: false,
+        ...config,
+        ...options,
+      }),
   });
 
   fixtures('reverses identifiers', path.join(__dirname, '..', '__fixtures__'));

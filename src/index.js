@@ -11,13 +11,13 @@ const ErrorStackParser = require('error-stack-parser');
 exports.create = function create(
   config,
   {
-    transform = code =>
+    transform = (code, options) =>
       // Lazily require babel so we don't throw for users who don't need it
       require('@babel/core').transformAsync(
         code,
         // By default, disable reading babel config
         // This makes sure that the tests are self contained
-        Object.assign({ babelrc: false, configFile: false }, config)
+        Object.assign({ babelrc: false, configFile: false }, config, options)
       ),
   } = {}
 ) {
@@ -90,7 +90,7 @@ exports.create = function create(
 
     return new Promise((resolve, reject) => {
       try {
-        resolve(transform(input.content));
+        resolve(transform(input.content, { filename: input.filename }));
       } catch (e) {
         reject(e);
       }
