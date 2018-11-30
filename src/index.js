@@ -17,7 +17,15 @@ exports.create = function create(
         code,
         // By default, disable reading babel config
         // This makes sure that the tests are self contained
-        Object.assign({ babelrc: false, configFile: false }, config, options)
+        Object.assign(
+          {
+            caller: { name: 'babel-tester' },
+            babelrc: false,
+            configFile: false,
+          },
+          config,
+          options
+        )
       ),
   } = {}
 ) {
