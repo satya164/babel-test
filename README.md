@@ -8,7 +8,7 @@ An opinionated library to make testing Babel plugins easier with Jest.
 
 I like to use fixture files instead of snapshots for testing my Babel plugins because it's easier to read with proper syntax highlighting. But I missed the features of snapshots, i.e. creating and updating snapshots with press of a key. It was too annoying to copy paste transformed code from the terminal every time. So I wanted to make something which integrates with Jest's snapshot feature.
 
-In addition, I felt that the current solutions add too much abstraction and I wanted to make something simpler.
+I also felt that the current solutions add too much abstraction and I wanted to make something simpler.
 
 ## Installation
 
@@ -87,6 +87,19 @@ async ({ input, transform }) => {
 
 The fixtures directory should contain subdirectories with test files. Every test should contain a `code.js` file, which will be used as the input. If the transform should throw, it should have an `error.js` file. If the transform should pass, it should have an `output.js` file with the transformed code. The title for each test will be based the name of the directory. The first argument is used as the title for the describe block.
 
+```sh
+.
+├── function-expression
+│   ├── code.js
+│   └── output.js
+├── invalid-syntax
+│   ├── code.js
+│   └── error.js
+└── simple-variable
+    ├── code.js
+    └── output.js
+```
+
 You can use `fixtures.skip` and `fixtures.only`, similar to Jest's `describe.skip` and `describe.only`. To skip an individual fixture, you can rename the fixture's directory to `skip.name-of-the-fixture`, and to run a specific fixture, you can rename the fixture's directory to `only.name-of-the-fixture`.
 
 This also optionally integrates with Jest's snapshot feature using `jest-file-snapshot` (see below).
@@ -119,7 +132,7 @@ expect.extend({ toMatchFile });
 
 Then configure the Jest watcher to ignore output files by adding the following under the `jest` key in `package.json`:
 
-```js
+```json
 "watchPathIgnorePatterns": [
   "__fixtures__\\/[^/]+\\/(output|error)\\.js"
 ]
