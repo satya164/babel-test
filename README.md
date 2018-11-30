@@ -2,6 +2,8 @@
 
 An opinionated library to make testing Babel plugins easier with Jest.
 
+<img alt="Demo" src="demo/demo.gif" width="626">
+
 ## Why
 
 I like to use fixture files instead of snapshots for testing my Babel plugins because it's easier to read with proper syntax highlighting. But I missed the features of snapshots, i.e. creating and updating snapshots with press of a key. It was too annoying to copy paste transformed code from the terminal every time. So I wanted to make something which integrates with Jest's snapshot feature.
