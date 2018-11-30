@@ -43,10 +43,16 @@ exports.create = function create(
           ).then(output => {
             const expected = expect(output.content);
 
-            if (typeof expected.toMatchFile === 'function') {
-              expected.toMatchFile(output.filename);
-            } else {
-              expected.toBe(fs.readFileSync(output.filename, 'utf8'));
+            try {
+              if (typeof expected.toMatchFile === 'function') {
+                expected.toMatchFile(output.filename);
+              } else {
+                expected.toBe(fs.readFileSync(output.filename, 'utf8'));
+              }
+            } catch (e) {
+              e.stack = `${e.message}\n${output.stack[0].source}`;
+
+              throw e;
             }
           });
         });
@@ -55,6 +61,9 @@ exports.create = function create(
 
   const helper = e => ({ input }) => {
     const stack = ErrorStackParser.parse(e);
+
+    // We should point to the user's file which started the test
+    stack.shift();
 
     const output = path.join(path.dirname(input.filename), 'output.js');
     const error = path.join(path.dirname(input.filename), 'error.js');
@@ -74,8 +83,7 @@ exports.create = function create(
         )
       );
 
-      // We should point to the user's file which started the test
-      e.stack = `${e.message}\n${stack[1].source}`;
+      e.stack = `${e.message}\n${stack[0].source}`;
 
       throw e;
     }
@@ -90,6 +98,7 @@ exports.create = function create(
       ({ code }) => ({
         filename: output,
         content: code,
+        stack,
       }),
       e => ({
         filename: error,
@@ -101,6 +110,7 @@ exports.create = function create(
           new RegExp(escapeRegexp(process.cwd()), 'g'),
           '<cwd>'
         ),
+        stack,
       })
     );
   };
