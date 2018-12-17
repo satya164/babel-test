@@ -1,5 +1,5 @@
 {
-  "name": "babel-tester",
+  "name": "babel-test",
   "version": "0.0.1",
   "description": "An opinionated library to make testing Babel plugins easier",
   "keywords": [
@@ -8,37 +8,54 @@
     "test"
   ],
   "main": "src/index.js",
+  "types": "index.d.ts",
   "files": [
-    "src/"
+    "src/",
+    "index.d.ts"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/satya164/babel-tester.git"
+    "url": "git+https://github.com/satya164/babel-test.git"
   },
   "author": "Satyajit Sahoo <satyajit.happy@gmail.com> (https://github.com/satya164/)",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "typescript": "tsc"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
+    "@types/babel__core": "^7.0.4",
+    "@types/jest": "^23.3.10",
+    "@types/node": "^10.12.15",
     "codecov": "^3.1.0",
     "eslint": "^5.9.0",
     "eslint-config-satya164": "^2.0.1",
     "husky": "^1.2.0",
     "jest": "^23.6.0",
     "jest-file-snapshot": "^0.2.1",
-    "prettier": "^1.15.2"
+    "prettier": "^1.15.2",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.2.2"
   },
   "jest": {
     "testEnvironment": "node",
     "testMatch": [
-      "**/__tests__/**/*.test.js"
+      "**/__tests__/**/*.test.+(js|ts|tsx)"
     ],
     "watchPathIgnorePatterns": [
       "__fixtures__\\/[^/]+\\/(output|error)\\.js"
-    ]
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
   },
   "dependencies": {
     "chalk": "^2.4.1",
@@ -48,7 +65,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint && yarn test"
+      "pre-commit": "yarn lint && yarn typescript && yarn test"
     }
   }
 }

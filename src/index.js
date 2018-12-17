@@ -20,7 +20,7 @@ exports.create = function create(config) {
             // This makes sure that the tests are self contained
             Object.assign(
               {
-                caller: { name: 'babel-tester' },
+                caller: { name: 'babel-test' },
                 babelrc: false,
                 configFile: false,
               },
@@ -43,54 +43,51 @@ exports.create = function create(config) {
           const filename = path.join(path.join(directory, f), 'code.js');
           const content = fs.readFileSync(filename, 'utf8');
 
-          return Promise.resolve(
-            callback({
-              input: { filename, content },
-              transform,
-            })
-          ).then(output => {
-            try {
-              if ('expect' in global) {
-                // Use `expect` for assertions if available, for example when using Jest
-                const expected = expect(output.content);
+          return Promise.resolve(callback(content, { filename })).then(
+            output => {
+              try {
+                if ('expect' in global) {
+                  // Use `expect` for assertions if available, for example when using Jest
+                  const expected = expect(output.content);
 
-                if (typeof expected.toMatchFile === 'function') {
-                  expected.toMatchFile(output.filename);
+                  if (typeof expected.toMatchFile === 'function') {
+                    expected.toMatchFile(output.filename);
+                  } else {
+                    expected.toBe(fs.readFileSync(output.filename, 'utf8'));
+                  }
                 } else {
-                  expected.toBe(fs.readFileSync(output.filename, 'utf8'));
+                  // If `expect` is not available, use `assert`, for example when using Mocha
+                  const assert = require('assert');
+                  const actual = fs.readFileSync(output.filename, 'utf8');
+
+                  assert.strictEqual(
+                    actual,
+                    output.content,
+                    `Expected output doesn't match ${path.basename(
+                      output.filename
+                    )}`
+                  );
                 }
-              } else {
-                // If `expect` is not available, use `assert`, for example when using Mocha
-                const assert = require('assert');
-                const actual = fs.readFileSync(output.filename, 'utf8');
+              } catch (e) {
+                e.stack = `${e.message}\n${output.stack}`;
 
-                assert.strictEqual(
-                  actual,
-                  output.content,
-                  `Expected output doesn't match ${path.basename(
-                    output.filename
-                  )}`
-                );
+                throw e;
               }
-            } catch (e) {
-              e.stack = `${e.message}\n${output.stack}`;
-
-              throw e;
             }
-          });
+          );
         });
       });
   };
 
-  const helper = e => ({ input }) => {
+  const helper = e => (code, { filename }) => {
     // We should filter out stack traces from the library
     const stack = ErrorStackParser.parse(e)
       .filter(s => s.fileName !== __filename)
       .map(s => s.source)
       .join('\n');
 
-    const output = path.join(path.dirname(input.filename), 'output.js');
-    const error = path.join(path.dirname(input.filename), 'error.js');
+    const output = path.join(path.dirname(filename), 'output.js');
+    const error = path.join(path.dirname(filename), 'error.js');
 
     if (fs.existsSync(output) && fs.existsSync(error)) {
       // The test should either pass, or throw
@@ -102,7 +99,7 @@ exports.create = function create(config) {
           `Both ${chalk.blue(path.basename(output))} and ${chalk.blue(
             path.basename(error)
           )} exist for ${chalk.blue(
-            path.basename(path.dirname(input.filename))
+            path.basename(path.dirname(filename))
           )}.\n\nRemove one of them to continue.`
         )
       );
@@ -114,7 +111,7 @@ exports.create = function create(config) {
 
     return new Promise((resolve, reject) => {
       try {
-        resolve(transform(input.content, { filename: input.filename }));
+        resolve(transform(code, { filename }));
       } catch (e) {
         reject(e);
       }

@@ -1,6 +1,6 @@
 const path = require('path');
 const { toMatchFile } = require('jest-file-snapshot');
-const { create } = require('../index');
+const { create } = require('../index') as typeof import('babel-test');
 
 expect.extend({ toMatchFile });
 

@@ -1,4 +1,4 @@
-# babel-tester
+# babel-test
 
 An opinionated library to make testing babel plugins easier.
 
@@ -15,13 +15,13 @@ The tool is fairly simple and works with [Jest](https://jestjs.io/) (recommended
 ## Installation
 
 ```sh
-npm install --save-dev babel-tester
+npm install --save-dev babel-test
 ```
 
 or
 
 ```sh
-yarn add --dev babel-tester
+yarn add --dev babel-test
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ yarn add --dev babel-tester
 The library exports a `create` function, which you can use to create helpers for your test using a babel config. The `fixtures` function from the returned object can be used to run tests against a directory containing fixtures:
 
 ```js
-import { create } from 'babel-tester';
+import { create } from 'babel-test';
 
 const { fixtures } = create({
   plugins: [require.resolve('./my-plugin')],
@@ -43,7 +43,7 @@ fixtures('my plugin', path.join(__dirname, '__fixtures__'));
 Calling the `create` function with a babel config returns an object with `test` and `fixtures` functions:
 
 ```js
-import { create } from 'babel-tester';
+import { create } from 'babel-test';
 
 const { test, fixtures } = create({
   plugins: [require.resolve('./my-plugin')],
