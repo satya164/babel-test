@@ -9,6 +9,16 @@ const escapeRegexp = require('escape-string-regexp');
 const ErrorStackParser = require('error-stack-parser');
 
 exports.create = function create(config) {
+  // Check if `describe` and `it` globals are available and throw if not
+  // This avoids confusion with unsupported test runners and incorect usage
+  if (!('describe' in global && 'it' in global)) {
+    throw new Error(
+      `Couldn't find ${chalk.blue('describe')} and ${chalk.blue(
+        'it'
+      )} in the global scope. Are you using a supported test runner such as Jest (https://jestjs.io) or Mocha (https://mochajs.org)?\n`
+    );
+  }
+
   const transform =
     typeof config === 'function'
       ? config
@@ -16,11 +26,11 @@ exports.create = function create(config) {
           // Lazily require babel so we don't throw for users who don't need it
           require('@babel/core').transformAsync(
             code,
-            // By default, disable reading babel config
-            // This makes sure that the tests are self contained
             Object.assign(
               {
                 caller: { name: 'babel-test' },
+                // By default, disable reading babel config
+                // This makes sure that the tests are self contained
                 babelrc: false,
                 configFile: false,
               },
@@ -33,6 +43,7 @@ exports.create = function create(config) {
     fs.readdirSync(directory)
       .filter(f => fs.lstatSync(path.join(directory, f)).isDirectory())
       .forEach(f => {
+        // Respect skip. and only. prefixes in folder names
         const t = f.startsWith('skip.')
           ? it.skip
           : f.startsWith('only.')
