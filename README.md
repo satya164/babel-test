@@ -8,7 +8,9 @@ An opinionated library to make testing babel plugins easier.
 
 I like to use fixture files instead of snapshots for testing my babel plugins because it's easier to read with proper syntax highlighting. But I missed the features of snapshots, i.e. creating and updating snapshots with press of a key. It was too annoying to copy paste transformed code from the terminal every time. So I wanted to make something which integrates with Jest's snapshot feature.
 
-I also felt that the current solutions add too much abstraction and I wanted to make something simpler. The tool is fairly simple and works with [Jest](https://jestjs.io/) (recommended) or any testing framework which provides the `describe` and `it` global functions, such as [Mocha](https://mochajs.org/).
+I also felt that the current solutions add too much abstraction and I wanted to make something simpler and opinionated. For example, the options passed to the tool are in the same format as the options passed to Babel which makes it easier to understand. I built this instead of contributing to existing tools because it's not really addressing lack of features in existing tools, just exploring a different API.
+
+The tool is fairly simple and works with [Jest](https://jestjs.io/) (recommended) or any testing framework which provides the `describe` and `it` global functions, such as [Mocha](https://mochajs.org/).
 
 ## Installation
 
@@ -102,11 +104,22 @@ Sometimes it's useful to test a plugin against a different babel instance. You c
 ```js
 const { test, fixtures } = create((code, options) =>
   // transform function for babel 6
-  require('babel-core').transform(code, Object.assign({}, config, options))
+  require('babel-core').transform(
+    code,
+    Object.assign(
+      {
+        babelrc: false,
+        plugins: [require.resolve('./my-plugin')],
+      },
+      options
+    )
+  )
 );
 ```
 
 The custom `transform` function will receive the `code` and additional `options` for babel (such as `filename`) and should return an object with `code` property containing the transformed code.
+
+If you're using the same fixtures directory with a different transform function, keep in mind that the same plugins can produce slightly different code in a different Babel version, and it's likely that error stack traces will be different. In these cases, there will be conflicts when updating the snapshots. It'll be better to separately test those fixtures for the different transforms to avoid conflicts.
 
 ## Integration with Jest snapshot
 
@@ -129,3 +142,8 @@ Then configure the Jest watcher to ignore output files by adding the following u
 ```
 
 Now you can create and update the output files like you would do with snapshots.
+
+## Other solutions
+
+- [`babel-plugin-tester`](https://github.com/babel-utils/babel-plugin-tester)
+- [`@babel/helper-plugin-test-runner`](https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner)
