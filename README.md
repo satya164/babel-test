@@ -1,5 +1,10 @@
 # babel-test
 
+[![Build Status][build-badge]][build]
+[![Code Coverage][coverage-badge]][coverage]
+[![MIT License][license-badge]][license]
+[![Version][version-badge]][package]
+
 An opinionated library to make testing babel plugins easier.
 
 <img alt="Demo" src="demo/demo.gif" width="626">
@@ -8,9 +13,9 @@ An opinionated library to make testing babel plugins easier.
 
 I like to use fixture files instead of snapshots for testing my babel plugins because it's easier to read with proper syntax highlighting. But I missed the features of snapshots, i.e. creating and updating snapshots with press of a key. It was too annoying to copy paste transformed code from the terminal every time. So I wanted to make something which integrates with Jest's snapshot feature.
 
-I also felt that the current solutions add too much abstraction and I wanted to make something simpler and opinionated. For example, the options passed to the tool are in the same format as the options passed to Babel which makes it easier to understand. I built this instead of contributing to existing tools because it's not really addressing lack of features in existing tools, just exploring a different API.
+I also felt that the current solutions add too much abstraction and I wanted to make something simpler. I built this instead of contributing to existing tools because it's not addressing lack of features in existing tools, but exploring a different API.
 
-The tool is fairly simple and works with [Jest](https://jestjs.io/) (recommended) or any testing framework which provides the `describe` and `it` global functions, such as [Mocha](https://mochajs.org/).
+The tool works with [Jest](https://jestjs.io/) (recommended) or any testing framework which provides the `describe` and `it` global functions, such as [Mocha](https://mochajs.org/).
 
 ## Installation
 
@@ -29,6 +34,7 @@ yarn add --dev babel-test
 The library exports a `create` function, which you can use to create helpers for your test using a babel config. The `fixtures` function from the returned object can be used to run tests against a directory containing fixtures:
 
 ```js
+import path from 'path';
 import { create } from 'babel-test';
 
 const { fixtures } = create({
@@ -50,7 +56,7 @@ const { test, fixtures } = create({
 });
 ```
 
-You can pass anything that babel supports to the `create` function. It'll additionally set `babelrc` and `configFile` options to `false` by default if you haven't explicitly passed it. This avoids your tests being affected by external babel configuration.
+The `create` function accepts the same [`options` object as Babel](https://babeljs.io/docs/en/options). It'll additionally set `babelrc` and `configFile` options to `false` by default if you haven't explicitly passed them. This avoids your tests being affected by external babel configuration.
 
 ### Testing fixtures
 
@@ -60,7 +66,7 @@ To run the tests against a directory with fixtures, you can use the `fixtures` f
 fixtures('my plugin', path.join(__dirname, '__fixtures__'));
 ```
 
-It accepts a title for the `describe` block and the path to the directory containing the fixtures, and optionally a custom callback to configure the output file.
+It accepts a title for the `describe` block and the absolute path to the directory containing the fixtures.
 
 The fixtures directory should contain subdirectories with test files. Every test should contain a `code.js` file, which will be used as the input. If the transform should throw, it should have an `error.js` file. If the transform should pass, it should have an `output.js` file with the transformed code. The title for each test will be based the name of the directory. The first argument is used as the title for the describe block.
 
@@ -77,7 +83,7 @@ The fixtures directory should contain subdirectories with test files. Every test
     └── output.js
 ```
 
-You can use `fixtures.skip` and `fixtures.only`, similar to Jest's `describe.skip` and `describe.only`. To skip an individual fixture, you can rename the fixture's directory to `skip.name-of-the-fixture`, and to run a specific fixture, you can rename the fixture's directory to `only.name-of-the-fixture`.
+You can use `fixtures.skip` and `fixtures.only`, similar to Jest's `describe.skip` and `describe.only`. To skip an individual fixture, you can rename the fixture's directory to `skip.name-of-the-fixture`, and to run a specific fixture only, you can rename the fixture's directory to `only.name-of-the-fixture`.
 
 By default, it will compare the outputs with the files on the filesystem and you have to manually update the files in case of a mismatch. If you're using Jest, you can use the snapshot feature to automatically update the files with a keypress. ([See below](#integration-with-jest-snapshot)) on how to set it up.
 
@@ -93,7 +99,7 @@ test('transpiles const to var', ({ transform }) => {
 });
 ```
 
-It accepts a title for the test and a callback containing the test. The callback will receive a `transform` function, and should return a promise if it's asynchronous. The `transform` function takes an optional second parameter containing additional [`options` for babel](https://babeljs.io/docs/en/options), useful for passing additional information such as `filename` required by some plugins.
+It accepts a title for the test and a callback containing the test. The callback will receive a `transform` function, and should return a promise if it's asynchronous. The `transform` function takes an optional second parameter containing additional options for Babel, useful for passing additional information such as `filename` required by some plugins.
 
 You can use `test.skip` and `test.only`, similar to Jest's `it.skip` and `it.only`.
 
@@ -143,7 +149,34 @@ Then configure the Jest watcher to ignore output files by adding the following u
 
 Now you can create and update the output files like you would do with snapshots.
 
-## Other solutions
+## Alternatives
 
 - [`babel-plugin-tester`](https://github.com/babel-utils/babel-plugin-tester)
 - [`@babel/helper-plugin-test-runner`](https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner)
+
+## Contributing
+
+Make sure your code passes the unit tests, ESLint and TypeScript. Run the following to verify:
+
+```sh
+yarn test
+yarn lint
+yarn typescript
+```
+
+To fix formatting errors, run the following:
+
+```sh
+yarn lint -- --fix
+```
+
+<!-- badges -->
+
+[build-badge]: https://img.shields.io/circleci/project/github/satya164/babel-test/master.svg?style=flat-square
+[build]: https://circleci.com/gh/satya164/babel-test
+[coverage-badge]: https://img.shields.io/codecov/c/github/satya164/babel-test.svg?style=flat-square
+[coverage]: https://codecov.io/github/satya164/babel-test
+[license-badge]: https://img.shields.io/npm/l/babel-test.svg?style=flat-square
+[license]: https://opensource.org/licenses/MIT
+[version-badge]: https://img.shields.io/npm/v/babel-test.svg?style=flat-square
+[package]: https://www.npmjs.com/package/babel-test
