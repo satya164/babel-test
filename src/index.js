@@ -118,7 +118,7 @@ exports.create = function create(config) {
     }).then(
       ({ code }) => ({
         filename: output,
-        content: code,
+        content: code + '\n',
         stack,
       }),
       e => ({
@@ -127,10 +127,11 @@ exports.create = function create(config) {
         // Strip them so the error is more readable
         // Also replace the current working directory with a placeholder
         // This makes sure that the stacktraces are same across machines
-        content: stripAnsi(e.stack).replace(
-          new RegExp(escapeRegexp(process.cwd()), 'g'),
-          '<cwd>'
-        ),
+        content:
+          stripAnsi(e.stack).replace(
+            new RegExp(escapeRegexp(process.cwd()), 'g'),
+            '<cwd>'
+          ) + '\n',
         stack,
       })
     );
