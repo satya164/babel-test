@@ -1,6 +1,6 @@
 {
   "name": "babel-test",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "An opinionated library to make testing Babel plugins easier",
   "keywords": [
     "babel",
@@ -22,7 +22,11 @@
   "scripts": {
     "lint": "eslint .",
     "test": "jest",
-    "typescript": "tsc"
+    "typescript": "tsc",
+    "release": "release-it"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
@@ -30,12 +34,14 @@
     "@types/jest": "^23.3.10",
     "@types/node": "^10.12.15",
     "codecov": "^3.1.0",
+    "conventional-changelog-cli": "^2.0.11",
     "eslint": "^5.9.0",
     "eslint-config-satya164": "^2.0.1",
     "husky": "^1.2.0",
     "jest": "^23.6.0",
     "jest-file-snapshot": "^0.2.1",
     "prettier": "^1.15.2",
+    "release-it": "^9.1.0",
     "ts-jest": "^23.10.5",
     "typescript": "^3.2.2"
   },
