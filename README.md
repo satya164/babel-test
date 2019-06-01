@@ -85,6 +85,16 @@ The fixtures directory should contain subdirectories with test files. Every test
 
 You can use `fixtures.skip` and `fixtures.only`, similar to Jest's `describe.skip` and `describe.only`. To skip an individual fixture, you can rename the fixture's directory to `skip.name-of-the-fixture`, and to run a specific fixture only, you can rename the fixture's directory to `only.name-of-the-fixture`.
 
+To use hooks such as `beforeEach`, `afterEach`, `beforeAll` and `afterAll`, you can pass an object with these properties as the third argument:
+
+```js
+fixtures('my plugin', path.join(__dirname, '__fixtures__'), {
+  beforeEach() {
+    // Do some setup here
+  },
+});
+```
+
 By default, it will compare the outputs with the files on the filesystem and you have to manually update the files in case of a mismatch. If you're using Jest, you can use the snapshot feature to automatically update the files with a keypress. ([See below](#integration-with-jest-snapshot)) on how to set it up.
 
 ### Standalone test

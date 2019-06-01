@@ -8,6 +8,9 @@ const stripAnsi = require('strip-ansi');
 const escapeRegexp = require('escape-string-regexp');
 const ErrorStackParser = require('error-stack-parser');
 
+const SUPPORTED_RUNNERS_TEXT =
+  'Are you using a supported test runner such as Jest (https://jestjs.io) or Mocha (https://mochajs.org)?';
+
 exports.create = function create(config) {
   // Check if `describe` and `it` globals are available and throw if not
   // This avoids confusion with unsupported test runners and incorect usage
@@ -15,7 +18,7 @@ exports.create = function create(config) {
     throw new Error(
       `Couldn't find ${chalk.blue('describe')} and ${chalk.blue(
         'it'
-      )} in the global scope. Are you using a supported test runner such as Jest (https://jestjs.io) or Mocha (https://mochajs.org)?\n`
+      )} in the global scope. ${SUPPORTED_RUNNERS_TEXT}\n`
     );
   }
 
@@ -39,7 +42,32 @@ exports.create = function create(config) {
             )
           );
 
-  const runner = (directory, callback) => () => {
+  const runner = (directory, options, callback) => () => {
+    if (options) {
+      const hooks = [
+        'before',
+        'after',
+        'beforeEach',
+        'afterEach',
+        'beforeAll',
+        'afterAll',
+      ];
+
+      for (const hook of hooks) {
+        if (options[hook] !== undefined) {
+          if (global[hook] !== undefined) {
+            global[hook](options[hook]);
+          } else {
+            throw new Error(
+              `Couldn't find ${chalk.blue(
+                hook
+              )} in the global scope. ${SUPPORTED_RUNNERS_TEXT}\n`
+            );
+          }
+        }
+      }
+    }
+
     fs.readdirSync(directory)
       .filter(f => fs.lstatSync(path.join(directory, f)).isDirectory())
       .forEach(f => {
@@ -160,15 +188,15 @@ exports.create = function create(config) {
 
   // We create a new error here so we can point to user's file in stack trace
   // Otherwise stack traces will point to the library code
-  function fixtures(title, directory, callback = helper(new Error())) {
-    describe(title, runner(directory, callback));
+  function fixtures(title, directory, options, callback = helper(new Error())) {
+    describe(title, runner(directory, options, callback));
   }
 
-  fixtures.skip = (title, directory, callback = helper(new Error())) =>
-    describe.skip(title, runner(directory, callback));
+  fixtures.skip = (title, directory, options, callback = helper(new Error())) =>
+    describe.skip(title, runner(directory, options, callback));
 
-  fixtures.only = (title, directory, callback = helper(new Error())) =>
-    describe.only(title, runner(directory, callback));
+  fixtures.only = (title, directory, options, callback = helper(new Error())) =>
+    describe.only(title, runner(directory, options, callback));
 
   return { test, fixtures };
 };

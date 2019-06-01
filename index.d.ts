@@ -8,6 +8,20 @@ declare module 'babel-test' {
     options: { filename: string }
   ) => Promise<{ code: string }>;
 
+  type DoneCallback = {
+    (...args: any[]): any;
+    fail(error?: string | { message: string }): any;
+  };
+
+  type LifecycleCallback = (cb: DoneCallback) => any;
+
+  type FixturesOptions = {
+    beforeEach?: LifecycleCallback;
+    afterEach?: LifecycleCallback;
+    beforeAll?: LifecycleCallback;
+    afterAll?: LifecycleCallback;
+  };
+
   type TestRunner<T> = (
     title: string,
     callback: (options: { transform: TransformCallback<T> }) => void
@@ -16,6 +30,7 @@ declare module 'babel-test' {
   type FixturesRunner = (
     title: string,
     directory: string,
+    options?: FixturesOptions,
     callback?: FixturesCallback
   ) => void;
 
