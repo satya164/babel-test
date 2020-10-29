@@ -1,56 +1,77 @@
-version: 2
+version: 2.1
 
-defaults: &defaults
-  docker:
-    - image: circleci/node:10
-  working_directory: ~/project
+executors:
+  default:
+    docker:
+      - image: circleci/node:10
+    working_directory: ~/project
+    environment:
+      YARN_CACHE_FOLDER: "~/.cache/yarn"
+
+commands:
+  attach_project:
+    steps:
+      - attach_workspace:
+          at: ~/project
 
 jobs:
   install-dependencies:
-    <<: *defaults
+    executor: default
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/project
+      - attach_project
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            - v1-dependencies-
-      - run: yarn install
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
+      - run:
+          name: Install project dependencies
+          command: yarn install --frozen-lockfile
       - save_cache:
-          key: v1-dependencies-{{ checksum "package.json" }}
-          paths: node_modules
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths: ~/.cache/yarn
       - persist_to_workspace:
           root: .
           paths: .
-  lint-and-types:
-    <<: *defaults
+
+  lint-and-typecheck:
+    executor: default
     steps:
-      - attach_workspace:
-          at: ~/project
-      - run: |
-          yarn lint
-          yarn typescript
-  unit-test:
-    <<: *defaults
+      - attach_project
+      - run:
+          name: Lint files
+          command: yarn lint
+      - run:
+          name: Prettier (for TS files)
+          command: |
+            yarn prettier --list-different "**/*.js" "**/*.ts"
+      - run:
+          name: Typecheck files
+          command: |
+            yarn typescript
+
+  unit-tests:
+    executor: default
     steps:
-      - attach_workspace:
-          at: ~/project
-      - run: |
-          yarn test --coverage
-          cat ./coverage/lcov.info | ./node_modules/.bin/codecov
+      - attach_project
+      - run:
+          name: Run unit tests
+          command: yarn test --maxWorkers=2 --coverage
+      - run:
+          name: Upload test coverage
+          command: yarn codecov
       - store_artifacts:
           path: coverage
           destination: coverage
 
 workflows:
-  version: 2
-  build-and-test:
+  lint-and-test:
     jobs:
       - install-dependencies
-      - lint-and-types:
+      - lint-and-typecheck:
           requires:
             - install-dependencies
-      - unit-test:
+      - unit-tests:
           requires:
             - install-dependencies
