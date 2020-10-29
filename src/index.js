@@ -124,13 +124,22 @@ exports.create = function create(config) {
       .map((s) => s.source)
       .join('\n');
 
+    class TestError extends Error {
+      constructor(message) {
+        super(message);
+
+        this.message = message;
+        this.stack = `\n${stack}`;
+      }
+    }
+
     const output = path.join(path.dirname(filename), 'output.js');
     const error = path.join(path.dirname(filename), 'error.js');
 
     if (fs.existsSync(output) && fs.existsSync(error)) {
       // The test should either pass, or throw
       // If the fixture has files for output and error, one needs to be removed
-      const e = new Error(
+      throw new TestError(
         // By default, Jest will grey out the text and highlight the stack trace
         // We force it to be white for more emphasis on the message
         chalk.white(
@@ -141,10 +150,6 @@ exports.create = function create(config) {
           )}.\n\nRemove one of them to continue.`
         )
       );
-
-      e.stack = `${e.message}\n${stack}`;
-
-      throw e;
     }
 
     return new Promise((resolve, reject) => {
@@ -154,24 +159,48 @@ exports.create = function create(config) {
         reject(e);
       }
     }).then(
-      ({ code }) => ({
-        filename: output,
-        content: code + '\n',
-        stack,
-      }),
-      (e) => ({
-        filename: error,
-        // Errors might have ansi colors, for example babel codeframe error
-        // Strip them so the error is more readable
-        // Also replace the current working directory with a placeholder
-        // This makes sure that the stacktraces are same across machines
-        content:
-          stripAnsi(e.stack).replace(
-            new RegExp(escapeRegexp(process.cwd()), 'g'),
-            '<cwd>'
-          ) + '\n',
-        stack,
-      })
+      ({ code }) => {
+        if (fs.existsSync(error)) {
+          throw new TestError(
+            chalk.white(
+              `The test previously failed with an error, but passed for this run.\n\nIf this is expected, remove the file ${chalk.blue(
+                path.basename(error)
+              )} to continue.`
+            )
+          );
+        }
+
+        return {
+          filename: output,
+          content: code + '\n',
+          stack,
+        };
+      },
+      (e) => {
+        if (fs.existsSync(output)) {
+          throw new TestError(
+            chalk.white(
+              `The test previously passed, but failed with an error for this run.\n\nIf this is expected, remove the file ${chalk.blue(
+                path.basename(output)
+              )} to continue.`
+            )
+          );
+        }
+
+        return {
+          filename: error,
+          // Errors might have ansi colors, for example babel codeframe error
+          // Strip them so the error is more readable
+          // Also replace the current working directory with a placeholder
+          // This makes sure that the stacktraces are same across machines
+          content:
+            stripAnsi(e.stack).replace(
+              new RegExp(escapeRegexp(process.cwd()), 'g'),
+              '<cwd>'
+            ) + '\n',
+          stack,
+        };
+      }
     );
   };
 
