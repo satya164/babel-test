@@ -43,10 +43,6 @@ jobs:
           name: Lint files
           command: yarn lint
       - run:
-          name: Prettier (for TS files)
-          command: |
-            yarn prettier --list-different "**/*.js" "**/*.ts"
-      - run:
           name: Typecheck files
           command: |
             yarn typescript
