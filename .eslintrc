@@ -5,6 +5,6 @@
     jest: true,
   },
   rules: {
-    'import/no-commonjs': false,
+    'import/no-commonjs': 'off',
   }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable jest/consistent-test-it */
+
 const path = require('path');
 const { toMatchFile } = require('jest-file-snapshot');
 const { create } = require('../index') as typeof import('babel-test');

@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-disabled-tests, jest/no-focused-tests */
 /* istanbul ignore file */
 
 const fs = require('fs');
@@ -69,8 +68,8 @@ exports.create = function create(config) {
     }
 
     fs.readdirSync(directory)
-      .filter(f => fs.lstatSync(path.join(directory, f)).isDirectory())
-      .forEach(f => {
+      .filter((f) => fs.lstatSync(path.join(directory, f)).isDirectory())
+      .forEach((f) => {
         // Respect skip. and only. prefixes in folder names
         const t = f.startsWith('skip.')
           ? it.skip
@@ -83,7 +82,7 @@ exports.create = function create(config) {
           const content = fs.readFileSync(filename, 'utf8');
 
           return Promise.resolve(callback(content, { filename })).then(
-            output => {
+            (output) => {
               try {
                 if ('expect' in global) {
                   // Use `expect` for assertions if available, for example when using Jest
@@ -118,11 +117,11 @@ exports.create = function create(config) {
       });
   };
 
-  const helper = e => (code, { filename }) => {
+  const helper = (e) => (code, { filename }) => {
     // We should filter out stack traces from the library
     const stack = ErrorStackParser.parse(e)
-      .filter(s => s.fileName !== __filename)
-      .map(s => s.source)
+      .filter((s) => s.fileName !== __filename)
+      .map((s) => s.source)
       .join('\n');
 
     const output = path.join(path.dirname(filename), 'output.js');
@@ -160,7 +159,7 @@ exports.create = function create(config) {
         content: code + '\n',
         stack,
       }),
-      e => ({
+      (e) => ({
         filename: error,
         // Errors might have ansi colors, for example babel codeframe error
         // Strip them so the error is more readable
