@@ -1,6 +1,6 @@
 {
   "name": "babel-test",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "An opinionated library to make testing Babel plugins easier",
   "keywords": [
     "babel",
