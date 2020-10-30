@@ -182,7 +182,7 @@ yarn lint -- --fix
 
 <!-- badges -->
 
-[build-badge]: https://img.shields.io/circleci/project/github/satya164/babel-test/master.svg?style=flat-square
+[build-badge]: https://img.shields.io/circleci/project/github/satya164/babel-test/main.svg?style=flat-square
 [build]: https://circleci.com/gh/satya164/babel-test
 [coverage-badge]: https://img.shields.io/codecov/c/github/satya164/babel-test.svg?style=flat-square
 [coverage]: https://codecov.io/github/satya164/babel-test
