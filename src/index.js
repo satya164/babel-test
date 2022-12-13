@@ -78,7 +78,9 @@ exports.create = function create(config) {
           : it;
 
         t(f.replace(/^(skip|only)\./, '').replace(/(-|_)/g, ' '), () => {
-          const filename = path.join(path.join(directory, f), 'code.js');
+          const testDirectory = path.join(directory, f);
+          const testConfig = loadTestConfig(testDirectory);
+          const filename = path.join(testDirectory, testConfig.inputFileName);
           const content = fs.readFileSync(filename, 'utf8');
 
           return Promise.resolve(callback(content, { filename })).then(
@@ -228,3 +230,17 @@ exports.create = function create(config) {
 
   return { test, fixtures };
 };
+
+function loadTestConfig(directory) {
+  const configFilename = path.join(directory, 'babel-test.json');
+  const defaultConfig = {
+    inputFileName: 'code.js',
+  };
+
+  try {
+    const config = JSON.parse(fs.readFileSync(configFilename, 'utf8'));
+    return Object.assign(defaultConfig, config);
+  } catch (_) {
+    return defaultConfig;
+  }
+}
