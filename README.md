@@ -97,6 +97,34 @@ fixtures('my plugin', path.join(__dirname, '__fixtures__'), {
 
 By default, it will compare the outputs with the files on the filesystem and you have to manually update the files in case of a mismatch. If you're using Jest, you can use the snapshot feature to automatically update the files with a keypress. ([See below](#integration-with-jest-snapshot)) on how to set it up.
 
+### Customizing the test file name
+
+Sometimes, the name of the test file can be relevant to the test itself. In that case, the default name of `code.js` can be overridden by specifying a `babel-test.json` configuration file inside the fixture directory:
+
+```sh
+.
+├── function-expression
+│   ├── code.js
+│   └── output.js
+├── invalid-syntax
+│   ├── code.js
+│   └── error.js
+└── simple-variable
+    ├── babel-test.json
+    ├── input.js
+    └── output.js
+```
+
+The configuration file supports a single option: `inputFileName`, which specifies the name to use instead of `code.js`.
+
+```json
+{
+  "inputFileName": "input.js"
+}
+```
+
+The name of `output.js` cannot be overridden.
+
 ### Standalone test
 
 To run a standalone test with some custom logic, you can use the `test` function returned from `create`:
